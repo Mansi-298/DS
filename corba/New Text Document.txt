@@ -1,0 +1,22 @@
+1> create idl file
+2> compile IFL file
+	windows =>  "C:\Program Files\Java\jdk1.8.0_202\bin\idlj" -fall Calculator.idl
+	ubuntu => /usr/lib/jvm/java-8-openjdk-amd64/bin/idlj -fall Calculator.idl
+
+3> create this files :-
+	CalculatorImpl.java
+	CalculatorServer.java
+	CalculatorClient.java
+
+3> Java Compilation
+	windows => "C:\Program Files\Java\jdk1.8.0_202\bin\javac" *.java CalcApp\*.java
+	ubuntu => /usr/lib/jvm/java-8-openjdk-amd64/bin/javac *.java CalcApp/*.java
+4> Start Naming Service
+	windows => "C:\Program Files\Java\jdk1.8.0_202\bin\tnameserv" -ORBInitialPort 1050
+	ubuntu => /usr/lib/jvm/java-8-openjdk-amd64/bin/tnameserv -ORBInitialPort 1050
+5> Run Server
+	windows => "C:\Program Files\Java\jdk1.8.0_202\bin\java" CalculatorServer -ORBInitialPort 1050
+	ubuntu => /usr/lib/jvm/java-8-openjdk-amd64/bin/java CalculatorServer -ORBInitialPort 1050
+6> Run Client
+	windows => "C:\Program Files\Java\jdk1.8.0_202\bin\java" CalculatorClient -ORBInitialPort 1050
+	ubuntu => /usr/lib/jvm/java-8-openjdk-amd64/bin/java CalculatorClient -ORBInitialPort 1050
