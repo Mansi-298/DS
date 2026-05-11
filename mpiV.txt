@@ -1,0 +1,157 @@
+import mpi.*;
+
+public class Mpi{
+
+    public static void main(String args[]) throws Exception {
+
+        // Initialize MPI
+        MPI.Init(args);
+
+        // Get processor rank
+        int rank = MPI.COMM_WORLD.Rank();
+        // Get total number of processors
+        int size = MPI.COMM_WORLD.Size();
+
+        // Array elements
+        int N = 8;
+
+        int[] array = {1, 2, 3, 4, 5, 6, 7, 8};
+
+        // Elements handled by each processor
+        int elementsPerProcess = N / size;
+
+        // Remaining elements
+        int remainder = N % size;
+
+        // Calculate starting index
+        int start = rank * elementsPerProcess
+                + Math.min(rank, remainder);
+
+        // Calculate ending index
+        int end = start + elementsPerProcess;
+
+        // Distribute remaining elements
+        if (rank < remainder) {
+            end++;
+        }
+
+        // Local partial sum
+        int localSum = 0;
+
+        // Calculate partial sum
+        for (int i = start; i < end; i++) {
+            localSum += array[i];
+        }
+
+        // Display processor-wise output
+        for (int i = 0; i < size; i++) {
+
+            if (rank == i) {
+
+                System.out.println("\n--- Processor "
+                        + rank + " ---");
+
+                System.out.print("Elements: ");
+
+                for (int j = start; j < end; j++) {
+                    System.out.print(array[j] + " ");
+                }
+
+                System.out.println();
+
+                System.out.println("Partial Sum = "
+                        + localSum);
+
+                System.out.println();
+            }
+
+            // Synchronize processors
+            MPI.COMM_WORLD.Barrier();
+        }
+
+        // Final sum array
+        int[] globalSum = new int[1];
+
+        // Reduce operation
+        MPI.COMM_WORLD.Reduce(
+                new int[]{localSum},
+                0,
+                globalSum,
+                0,
+                1,
+                MPI.INT,
+                MPI.SUM,
+                0
+        );
+
+        // Display final result
+        if (rank == 0) {
+
+            System.out.println(
+                    "\n===== FINAL RESULT =====");
+
+            System.out.println(
+                    "Total Sum = " + globalSum[0]);
+        }
+
+        // Finalize MPI
+        MPI.Finalize();
+    }
+}
+
+// wget https://sourceforge.net/projects/mpjexpress/files/releases/mpj-v0_44.tar.gz
+// tar -xvzf mpj-v0_44.tar.gz
+// sudo mv mpj-v0_44 /opt/mpj
+// export MPJ_HOME=/opt/mpj
+// export PATH=$PATH:$MPJ_HOME/bin
+// javac -cp /opt/mpj/lib/mpj.jar Mpi.java
+//mpjrun.sh -np 4 -cp . Mpi
+
+
+pdm_ssh_@LAPTOP-JOHGUEJJ:~$ ls
+Mpi.java  berkeley  ds_practical3  ds_practice1  master_node.c  mpj-v0_44  mpj-v0_44.tar.gz  myscripts  snap
+pdm_ssh_@LAPTOP-JOHGUEJJ:~$ sudo mv mpj-v0_44 /opt/mpj
+pdm_ssh_@LAPTOP-JOHGUEJJ:~$ ls
+Mpi.java  berkeley  ds_practical3  ds_practice1  master_node.c  mpj-v0_44.tar.gz  myscripts  snap
+pdm_ssh_@LAPTOP-JOHGUEJJ:~$ ls /opt/mpj
+CHANGELOG    README          THIRDPARTYLICENSES.txt  bin        conf      doc  logs  test
+LICENSE.txt  README-win.txt  THIRDPARTYNOTICES.txt   build.xml  debugger  lib  src
+pdm_ssh_@LAPTOP-JOHGUEJJ:~$ export MPJ_HOME=/opt/mpj
+pdm_ssh_@LAPTOP-JOHGUEJJ:~$ export PATH=$PATH:$MPJ_HOME/bin
+pdm_ssh_@LAPTOP-JOHGUEJJ:~$ javac -cp /opt/mpj/lib/mpj.jar Mpi.java
+pdm_ssh_@LAPTOP-JOHGUEJJ:~$ mpjrun.sh -np 4 -cp Mpi.java
+MPJ Express (0.44) is started in the multicore configuration
+Exception in thread "main" java.lang.NullPointerException
+        at runtime.starter.MPJRun.<init>(MPJRun.java:331)
+        at runtime.starter.MPJRun.main(MPJRun.java:1238)
+pdm_ssh_@LAPTOP-JOHGUEJJ:~$ mpjrun.sh -np 4 -cp . Mpi.java
+MPJ Express (0.44) is started in the multicore configuration
+java.lang.ClassNotFoundException: Mpi.java
+        at java.net.URLClassLoader.findClass(URLClassLoader.java:387)
+        at java.lang.ClassLoader.loadClass(ClassLoader.java:418)
+        at java.lang.ClassLoader.loadClass(ClassLoader.java:351)
+        at java.lang.Class.forName0(Native Method)
+        at java.lang.Class.forName(Class.java:348)
+        at runtime.starter.MulticoreStarter$1.run(MulticoreStarter.java:208)
+        at java.lang.Thread.run(Thread.java:750)
+java.lang.NullPointerException
+        at runtime.starter.MulticoreStarter$1.run(MulticoreStarter.java:281)
+        at java.lang.Thread.run(Thread.java:750)
+pdm_ssh_@LAPTOP-JOHGUEJJ:~$ mpjrun.sh -np 4 -cp . Mpi
+MPJ Express (0.44) is started in the multicore configuration
+--- Processor 0 ---
+Elements: 1 2
+Partial Sum = 3
+--- Processor 1 ---
+Elements: 3 4
+Partial Sum = 7
+--- Processor 2 ---
+Elements: 5 6
+Partial Sum = 11
+--- Processor 3 ---
+Elements: 7 8
+Partial Sum = 15
+===== FINAL RESULT =====
+Total Sum = 36
+pdm_ssh_@LAPTOP-JOHGUEJJ:~$
+
